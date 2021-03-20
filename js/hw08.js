@@ -1,54 +1,88 @@
+// убрал ссылку из парса, иначе не срабатывает модалка, а откр.ссылка
+// зачем она здесь? лишь создаёт проблему
+
 import collection from "./gallery-items.js";
+
+const coll = collection.map((el) => el.description);
+let currNumbChoice = 0;
 
 const galContainer = document.querySelector(".js-gallery");
 const cardsMarkUp = createGalCardsMarkUp(collection);
+const modal = document.querySelector(".lightbox");
+const closeModalBtn = document.querySelector('[data-action="close-lightbox"]');
+const contentModal = document.querySelector(".lightbox__image");
+// const backDrop = document.querySelector(".lightbox__overlay");
 
 galContainer.insertAdjacentHTML("beforeend", cardsMarkUp);
 
-// let target='';
-
 galContainer.addEventListener("click", onGalContainerClick);
-// console.log(target);
+closeModalBtn.addEventListener("click", onCloseModal);
+// backDrop.addEventListener("click", onbackDropClick);
 
-// console.dir(createGalCardsMarkUp(collection));
-// const createGalCardsMarkUp =  items=>{
+//  <a class="gallery__link" href="${original}">
 function createGalCardsMarkUp(collection) {
   return collection
     .map(({ preview, original, description }) => {
       return `
-     <li class="gallery__item">
-        <a class="gallery__link" href="${original}">
+        <li class="gallery__item">
+          <a class="gallery__link">
             <img class="gallery__image"
-                src="${preview}"
-                data-source="${original}"
-                alt="${description}"
+              src="${preview}"
+              data-source="${original}"
+              alt="${description}"
             />
-        </a>
-    </li>       
-       `;
+          </a>
+        </li>       
+            `;
     })
     .join("");
 }
 function onGalContainerClick(evt) {
-    console.log('onGalContainerClick');
-    const isGalItem=evt.target.classList.contains('gallery__item')
-    if (!isGalItem){
-        return;
-    }
-    // target=evt.target;
-    // console.log(evt.target);
-}
+  window.addEventListener("keydown", onKeyPress);
 
-/* <li class="gallery__item">
-        <a
-          class="gallery__link"
-          href="https://cdn.pixabay.com/photo/2010/12/13/10/13/tulips-2546_1280.jpg"
-        >
-          <img
-            class="gallery__image"
-            src="https://cdn.pixabay.com/photo/2010/12/13/10/13/tulips-2546__340.jpg"
-            data-source="https://cdn.pixabay.com/photo/2010/12/13/10/13/tulips-2546_1280.jpg"
-            alt="Tulips"
-          />
-        </a>
-      </li> */
+  const isGalItem = evt.target.classList.contains("gallery__image");
+  if (!isGalItem) {
+    return;
+  }
+
+  contentModal.src = evt.target.dataset.source;
+  contentModal.alt = evt.target.alt;
+
+  modal.classList.add("is-open");
+
+  currNumbChoice = coll.indexOf(contentModal.alt);
+}
+function onCloseModal() {
+  window.removeEventListener("keydown", onKeyPress);
+
+  modal.classList.remove("is-open");
+
+  contentModal.src = "";
+  contentModal.alt = "";
+}
+// function onbackDropClick(evt) {
+//   console.log("Click on bDrop");
+//   onCloseModal();
+//   if (evt.currentTarget===evt.target)console.log('Target - bDrop');
+// }
+function onKeyPress(evt) {
+  if (evt.code === "Escape") onCloseModal();
+  if (evt.code === "ArrowLeft") pressKeyLeft();
+  if (evt.code === "ArrowRight") pressKeyRight();
+}
+function pressKeyLeft() {
+  if (currNumbChoice === 0) currNumbChoice = coll.length;
+  currNumbChoice -= 1;
+
+  changeImg();
+}
+function pressKeyRight() {
+  if (currNumbChoice === coll.length - 1) currNumbChoice = -1;
+  currNumbChoice += 1;
+
+  changeImg();
+}
+function changeImg() {
+  contentModal.src = collection[currNumbChoice].original;
+  contentModal.alt = collection[currNumbChoice].original;
+}

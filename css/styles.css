@@ -58,6 +58,8 @@ body {
   display: block;
   text-decoration: none;
   height: 100%;
+
+  /* pointer-events: none; */
 }
 
 .gallery__link:hover {
