@@ -1,31 +1,27 @@
-// убрал ссылку из парса, иначе не срабатывает модалка, а откр.ссылка
-// зачем она здесь? лишь создаёт проблему
-
 import collection from "./gallery-items.js";
 
 const coll = collection.map((el) => el.description);
 let currNumbChoice = 0;
 
 const galContainer = document.querySelector(".js-gallery");
-const cardsMarkUp = createGalCardsMarkUp(collection);
 const modal = document.querySelector(".lightbox");
 const closeModalBtn = document.querySelector('[data-action="close-lightbox"]');
 const contentModal = document.querySelector(".lightbox__image");
 // const backDrop = document.querySelector(".lightbox__overlay");
+
+const cardsMarkUp = createGalCardsMarkUp(collection);
 
 galContainer.insertAdjacentHTML("beforeend", cardsMarkUp);
 
 galContainer.addEventListener("click", onGalContainerClick);
 closeModalBtn.addEventListener("click", onCloseModal);
 // backDrop.addEventListener("click", onbackDropClick);
-
-//  <a class="gallery__link" href="${original}">
 function createGalCardsMarkUp(collection) {
   return collection
     .map(({ preview, original, description }) => {
       return `
         <li class="gallery__item">
-          <a class="gallery__link">
+          <a class="gallery__link" href="${original}">
             <img class="gallery__image"
               src="${preview}"
               data-source="${original}"
@@ -37,7 +33,11 @@ function createGalCardsMarkUp(collection) {
     })
     .join("");
 }
+
 function onGalContainerClick(evt) {
+  // console.log('onGalContainerClick');
+  evt.preventDefault();
+
   window.addEventListener("keydown", onKeyPress);
 
   const isGalItem = evt.target.classList.contains("gallery__image");
